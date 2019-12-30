@@ -23,12 +23,15 @@ private:
     int sign;
     void set_number(string value, bool positive_sign);
     bool greater(BigInt b);
+    BigInt add (BigInt b);
+    BigInt sub (BigInt b);
 public:
-    BigInt(int length);
     BigInt(string value_and_sign);
     BigInt(long long int value);
+    BigInt(int length, int init_value, bool positive_sign);
     string to_string();
     BigInt absolute();
+    void set_sign(bool positive_sign);
     bool get_positive_sign();
     int get_real_length();
     void operator = (BigInt b);
@@ -38,6 +41,7 @@ public:
     bool operator >= (BigInt b);
     bool operator < (BigInt b);
     bool operator <= (BigInt b);
+    BigInt operator + (BigInt b);
 };
 
 #endif //TEST_BIGINT_H
