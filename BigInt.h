@@ -42,6 +42,7 @@ public:
     bool operator < (BigInt b);
     bool operator <= (BigInt b);
     BigInt operator + (BigInt b);
+    BigInt operator - (BigInt b);
 };
 
 #endif //TEST_BIGINT_H

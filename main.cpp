@@ -32,15 +32,17 @@ int main(int argc, char *argv[]) {
     }
     cout << x1.to_string() << endl << x2.to_string() << endl;
 
-    long long int t = 1234567891000002132;
+
     BigInt x3(-14782131232130);
     printf("hhh %s \n", x3.to_string().c_str());
     printf("%d \n", x3.get_real_length());
 
     BigInt x4(-96487);
     x1 = x4 + x3;
-    printf("%s  ", x1.to_string().c_str());
+    printf("%s\n", x1.to_string().c_str());
     x1 = x3 + x4;
-    printf("%s", x1.to_string().c_str());
+    printf("%s\n", x1.to_string().c_str());
+    x1 = x4 - x3;
+    printf("%s\n", x1.to_string().c_str());
     return 0;
 }

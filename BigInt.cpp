@@ -2,8 +2,6 @@
 // Created by Raibows on 2019/12/30.
 //
 #include "BigInt.h"
-#include <string>
-#include <vector>
 #include <iostream>
 
 bool BigInt::get_positive_sign() {
@@ -302,4 +300,10 @@ BigInt BigInt::sub(BigInt b) {
 
 BigInt BigInt::operator+(BigInt b) {
     return this->add(b);
+}
+
+BigInt BigInt::operator-(BigInt b) {
+    BigInt temp = b;
+    temp.set_sign(!b.get_positive_sign());
+    return this->add(temp);
 }
