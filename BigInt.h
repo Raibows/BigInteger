@@ -24,7 +24,8 @@ private:
     void set_number(string value, bool positive_sign);
     bool greater(BigInt b);
     BigInt add (BigInt b);
-    BigInt sub (BigInt b);
+    BigInt multiply (BigInt b);
+    BigInt sub_value(int start, int end);
 public:
     BigInt(string value_and_sign);
     BigInt(long long int value);
@@ -43,6 +44,8 @@ public:
     bool operator <= (BigInt b);
     BigInt operator + (BigInt b);
     BigInt operator - (BigInt b);
+    BigInt operator * (BigInt b);
+    BigInt operator / (BigInt b);
 };
 
 #endif //TEST_BIGINT_H

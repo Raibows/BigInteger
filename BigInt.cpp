@@ -3,6 +3,7 @@
 //
 #include "BigInt.h"
 #include <iostream>
+#include <algorithm>
 
 bool BigInt::get_positive_sign() {
     return this->sign == 0 ? true : false;
@@ -35,8 +36,9 @@ void BigInt::set_number(string value, bool positive_sign) {
     this->sign = positive_sign ? 0 : 1;
     this->value[0] = sign;
     int i = 0;
-    for (string::iterator iter = value.end()-1; iter >= value.begin(); --iter) {
-        this->value[++i] = (*iter - '0');
+	int j = value.size() - 1;
+    for (; j >= 0; --j) {
+        this->value[++i] = (value[j] - '0');
     }
     this->real_length = i;
 }
@@ -54,7 +56,19 @@ BigInt::BigInt(string value_and_sign) {
     } else {
         positive = true;
     }
-    printf("structor %s \n", value_and_sign.c_str());
+	int i = 0;
+	while (i < value_and_sign.size() - 1)
+	{
+		if (value_and_sign[i] != '0') {
+			break;
+		}
+		++i;
+	}
+	value_and_sign = value_and_sign.substr(i);
+	if (value_and_sign == "0") {
+		positive = true;
+	}
+//    printf("structor %s \n", value_and_sign.c_str());
     this->set_number(value_and_sign, positive);
 }
 
@@ -294,9 +308,12 @@ BigInt BigInt::add(BigInt b) {
     return temp;
 }
 
-BigInt BigInt::sub(BigInt b) {
-
+BigInt BigInt::sub_value(int start, int end) {
+    //return sub of self, if x = 123456, return x[start=1: end=3) = 23
+	BigInt temp(end - start, 1, this->get_positive_sign());
+    return *this;
 }
+
 
 BigInt BigInt::operator+(BigInt b) {
     return this->add(b);
