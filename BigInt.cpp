@@ -4,6 +4,7 @@
 #include "BigInt.h"
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
 bool BigInt::get_positive_sign() {
     return this->sign == 0 ? true : false;
@@ -309,11 +310,57 @@ BigInt BigInt::add(BigInt b) {
 }
 
 BigInt BigInt::sub_value(int start, int end) {
-    //return sub of self, if x = 123456, return x[start=1: end=3) = 23
-	BigInt temp(end - start, 1, this->get_positive_sign());
-    return *this;
+    //return sub of self, if x = 123456, return x[start=1: end=3) = 12
+    int real_length = this->get_real_length();
+    if (end == -1) {
+        end = real_length;
+    }
+	if (start > real_length || start < 1 || end < 1 || end > real_length) {
+	    throw runtime_error("ERROR sub_value start, end is wrong!");
+	}
+    BigInt temp(end - start, 1, this->get_positive_sign());
+	int i = 1;
+	while (start != end) {
+	    temp.value[i] = this->value[start];
+	    ++start;
+	    ++i;
+	}
+    return temp;
 }
 
+BigInt BigInt::get_zero() {
+    int i = 0;
+    this->get_real_length();
+    BigInt temp = *this;
+    temp.set_sign(true);
+    for (; i < temp.value.size(); ++i) {
+        temp.value[i] = 0;
+    }
+    return temp;
+}
+
+BigInt BigInt::karatsuba(BigInt a, BigInt b) {
+    if (a < 10 || b < 10) {
+        return a * b;
+    }
+    int len_a = a.get_real_length();
+    int len_b = b.get_real_length();
+    int half = max(len_a, len_b) / 2;
+    BigInt aa = a.sub_value(1, len_a-half);
+    BigInt bb = a.sub_value(len_a-half, -1);
+    BigInt cc = b.sub_value(1, len_b-half);
+    BigInt dd = b.sub_value(len_b-half, -1);
+
+    BigInt z2 = this->karatsuba(aa, cc);
+    BigInt z0 = this->karatsuba(bb, dd);
+    BigInt z1 = this->karatsuba((aa+bb), (cc+dd)) - z0 - z2;
+
+    return z2 * pow(10, 2*half) + z1 * pow(10, half) + z0;
+}
+
+BigInt BigInt::multiply(BigInt b) {
+    return this->karatsuba(*this, b);
+}
 
 BigInt BigInt::operator+(BigInt b) {
     return this->add(b);
@@ -324,3 +371,37 @@ BigInt BigInt::operator-(BigInt b) {
     temp.set_sign(!b.get_positive_sign());
     return this->add(temp);
 }
+
+BigInt BigInt::operator*(BigInt b) {
+    if (*this == 0 || b == 0) {
+        return BigInt(0);
+    }
+    int len_a = this->get_real_length();
+    int len_b = b.get_real_length();
+    vector<int> temp (len_a+len_b, 0);
+    bool positive = this->get_positive_sign() == b.get_positive_sign() ? this->get_positive_sign() : false;
+    int carry = 0;
+    int i, j;
+    for (i=1; i<= len_a; ++i) { //not carry first
+        for (j=1; j<=len_b; ++j) {
+            temp[i+j-1] += this->value[i] * b.value[j];
+        }
+    }
+    i = 1;
+    j = 0;
+    while (i < (len_a+len_b) || carry != 0) { // calculate carry
+        if (i >= temp.size()) {
+            temp.push_back(0);
+        }
+        j = temp[i] + carry;
+        temp[i] = j % 10;
+        carry = j / 10;
+        ++i;
+    }
+    BigInt ans("0");
+    ans.set_sign(positive);
+    ans.value = temp;
+    ans.get_real_length();
+    return ans;
+}
+

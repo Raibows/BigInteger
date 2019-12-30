@@ -42,5 +42,12 @@ int main(int argc, char *argv[]) {
     printf("%s\n", x1.to_string().c_str());
     x1 = x4 - x3;
     printf("%s\n", x1.to_string().c_str());
+    x1 = BigInt("-213213213213213219546812312439752745435345213218364");
+    x2 = BigInt("+154878464444444468798431233131231234235423516132131235654648");
+    x4 = x1 * x2;
+    printf("multiply is %s\n", x4.to_string().c_str());
+    x3 = x1.multiply(x2);
+    printf("multiply is %s\n", x3.to_string().c_str());
+    printf("equal or not %d", x3==x4);
     return 0;
 }
