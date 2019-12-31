@@ -108,7 +108,7 @@ string BigInt::to_string() {
     while(*iter == 0 && iter != this->value.begin() + 1) {
         --iter;
     }
-    for (; iter != this->value.begin(); --iter) {
+    for (; iter > this->value.begin(); --iter) {
         temp.push_back(('0' + *iter));
     }
     return temp;
@@ -161,7 +161,7 @@ bool BigInt::greater(BigInt b) {
     }
     vector<int>::iterator iter1 = this->value.end()-1;
     vector<int>::iterator iter2 = b.value.end()-1;
-    while (iter1 >= this->value.begin() && iter2 >= b.value.begin()){
+    while (iter1 > this->value.begin() && iter2 > b.value.begin()){
         if (*iter1 != *iter2)
         {
             return *iter1 > *iter2;
@@ -315,16 +315,18 @@ BigInt BigInt::sub_value(int start, int end) {
     if (end == -1) {
         end = real_length;
     }
-	if (start > real_length || start < 1 || end < 1 || end > real_length) {
+	if (start > real_length || start < 1 || end < start) {
 	    throw runtime_error("ERROR sub_value start, end is wrong!");
 	}
-    BigInt temp(end - start, 1, this->get_positive_sign());
+    BigInt temp(end-start+1, 1, this->get_positive_sign());
 	int i = 1;
-	while (start != end) {
+	while (start <= end) {
 	    temp.value[i] = this->value[start];
 	    ++start;
 	    ++i;
 	}
+	temp.set_sign(true);
+	temp.get_real_length();
     return temp;
 }
 
@@ -339,47 +341,15 @@ BigInt BigInt::get_zero() {
     return temp;
 }
 
-BigInt BigInt::karatsuba(BigInt a, BigInt b) {
-    if (a < 10 || b < 10) {
-        return a * b;
-    }
-    int len_a = a.get_real_length();
-    int len_b = b.get_real_length();
-    int half = max(len_a, len_b) / 2;
-    BigInt aa = a.sub_value(1, len_a-half);
-    BigInt bb = a.sub_value(len_a-half, -1);
-    BigInt cc = b.sub_value(1, len_b-half);
-    BigInt dd = b.sub_value(len_b-half, -1);
 
-    BigInt z2 = this->karatsuba(aa, cc);
-    BigInt z0 = this->karatsuba(bb, dd);
-    BigInt z1 = this->karatsuba((aa+bb), (cc+dd)) - z0 - z2;
-
-    return z2 * pow(10, 2*half) + z1 * pow(10, half) + z0;
-}
-
-BigInt BigInt::multiply(BigInt b) {
-    return this->karatsuba(*this, b);
-}
-
-BigInt BigInt::operator+(BigInt b) {
-    return this->add(b);
-}
-
-BigInt BigInt::operator-(BigInt b) {
-    BigInt temp = b;
-    temp.set_sign(!b.get_positive_sign());
-    return this->add(temp);
-}
-
-BigInt BigInt::operator*(BigInt b) {
+BigInt BigInt::simple_multiply(BigInt b) {
     if (*this == 0 || b == 0) {
         return BigInt(0);
     }
     int len_a = this->get_real_length();
     int len_b = b.get_real_length();
     vector<int> temp (len_a+len_b, 0);
-    bool positive = this->get_positive_sign() == b.get_positive_sign() ? this->get_positive_sign() : false;
+    bool positive = this->get_positive_sign() == b.get_positive_sign() ? true : false;
     int carry = 0;
     int i, j;
     for (i=1; i<= len_a; ++i) { //not carry first
@@ -399,9 +369,64 @@ BigInt BigInt::operator*(BigInt b) {
         ++i;
     }
     BigInt ans("0");
-    ans.set_sign(positive);
     ans.value = temp;
     ans.get_real_length();
+    ans.set_sign(positive);
     return ans;
+}
+
+BigInt BigInt::karatsuba(BigInt a, BigInt b) {
+    if (a.absolute() < 10 || b.absolute() < 10) {
+        return a.simple_multiply(b);
+    }
+    int len_a = a.get_real_length();
+    int len_b = b.get_real_length();
+    int half = min(len_a, len_b) / 2;
+
+    BigInt bb = a.sub_value(1, half);
+    BigInt aa = a.sub_value(half+1, -1);
+    BigInt dd = b.sub_value(1, half);
+    BigInt cc = b.sub_value(half+1, -1);
+
+    BigInt z2 = this->karatsuba(aa, cc);
+    BigInt z0 = this->karatsuba(bb, dd);
+    BigInt z1 = this->karatsuba((aa+bb), (cc+dd));
+    z1 = z1 - z0 - z2;
+    for (int i=0; i < 2*half; ++i) {
+        z2.value.insert(z2.value.begin()+1, 0);
+    }
+    for (int i=0; i < half; ++i) {
+        z1.value.insert(z1.value.begin()+1, 0);
+    }
+
+    return z2+z1+z0;;
+}
+
+
+BigInt BigInt::multiply(BigInt b) {
+    BigInt temp = this->karatsuba(*this, b);
+    temp.get_real_length();
+    temp.set_sign(this->get_positive_sign() == b.get_positive_sign() ? true : false);
+    return temp;
+}
+
+BigInt BigInt::operator+(BigInt b) {
+    return this->add(b);
+}
+
+BigInt BigInt::operator-(BigInt b) {
+    BigInt temp = b;
+    temp.set_sign(!b.get_positive_sign());
+    return this->add(temp);
+}
+
+
+
+BigInt BigInt::operator*(BigInt b) {
+    if (this->real_length > 4 && b.real_length > 4) {
+//        cout << "using kara" << endl;
+        return this->multiply(b);
+    }
+    return this->simple_multiply(b);
 }
 

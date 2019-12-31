@@ -26,6 +26,8 @@ private:
     BigInt add (BigInt b);
     BigInt sub_value(int start, int end);
     BigInt karatsuba(BigInt a, BigInt b);
+    BigInt simple_multiply(BigInt b);
+    BigInt multiply (BigInt b);
     BigInt get_zero();
 public:
     BigInt(string value_and_sign);
@@ -47,7 +49,6 @@ public:
     BigInt operator - (BigInt b);
     BigInt operator * (BigInt b);
     BigInt operator / (BigInt b);
-    BigInt multiply (BigInt b);
 };
 
 #endif //TEST_BIGINT_H
