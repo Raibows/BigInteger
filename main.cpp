@@ -1,58 +1,59 @@
 #include <iostream>
 #include <string>
 #include "BigInt.h"
+#include <fstream>
+#include <sstream>
+#include <time.h>
+
+
+struct data{
+    string x;
+    string y;
+    string ans;
+    void setdata(string x, string y, string ans) {
+        this->x = x;
+        this->y = y;
+        this->ans = ans;
+    }
+};
+
 
 
 int main(int argc, char *argv[]) {
+    int num = 1000;
     ios::sync_with_stdio(false);
-    string value1 = "+987";
-    string value2 = "65";
-    BigInt x1 = BigInt(value1);
-    BigInt x2 = BigInt(value2);
-    BigInt x9 = x1  + x2;
-	cout << x9.to_string().c_str() << endl;
-	x9 = x9 * BigInt(43+21);
-    cout << x9.to_string().c_str() << endl;
-    if (x1 == x2) {
-        printf("equal \n");
+    string path = "./testBig.csv";
+    ifstream inFile(path, ios::in);
+    string line;
+    string single;
+    vector<data> testdata(num);
+    int i = 0;
+    while (getline(inFile, line)) {
+        stringstream ss(line);
+        vector<string> temp;
+        while (getline(ss, single, ',')) {
+            temp.push_back(single);
+        }
+        testdata[i++].setdata(temp[0], temp[1], temp[2]);
     }
-    if (x1 != x2) {
-        printf("not equal \n");
+
+    i = 0;
+    clock_t t1 = clock();
+
+    for (; i < num; ++i) {
+        BigInt x(testdata[i].x);
+        BigInt y(testdata[i].y);
+        if (x*y != testdata[i].ans) {
+            cout << i << "error" << endl;
+            break;
+        }
+        cout << "yes" << i << endl;
     }
-    if (x1 > x2) {
-        printf("> \n");
-    }
-    if (x1 >= x2) {
-        printf(">= \n");
-    }
-    if (x1 < x2) {
-        printf("< \n");
-    }
-    if (x1 <= x2) {
-        printf("<= \n");
-    }
-    cout << x1.to_string() << endl << x2.to_string() << endl;
-
-
-    BigInt x3(-14782131232130);
-    printf("hhh %s \n", x3.to_string().c_str());
-    printf("%d \n", x3.get_real_length());
-
-    BigInt x4("-546454654654666578878");
-    x1 = x4 + x3;
-    printf("%s\n", x1.to_string().c_str());
-    x1 = x3 + x4;
-    printf("%s\n", x1.to_string().c_str());
-    x1 = x4 - x3;
-    printf("%s\n", x1.to_string().c_str());
-
-    x1 = BigInt("-987650");
-    x2 = BigInt("4322132132131232354365475688790789781");
-    x3 = x1 * x2;
-    printf("* is %s\n", x3.to_string().c_str());
-    printf("equal %d", x3.to_string() == "-4268753800299411634789062064034223527204650");
 
 
 
+
+
+    cout << (clock() - t1) * 1.0 / CLOCKS_PER_SEC  << "秒" <<endl;
     return 0;
 }

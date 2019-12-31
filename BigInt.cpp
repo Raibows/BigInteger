@@ -423,10 +423,10 @@ BigInt BigInt::operator-(BigInt b) {
 
 
 BigInt BigInt::operator*(BigInt b) {
-    if (this->real_length > 4 && b.real_length > 4) {
-//        cout << "using kara" << endl;
-        return this->multiply(b);
-    }
-    return this->simple_multiply(b);
+//    if (this->real_length > 4 && b.real_length > 4) {
+//        return this->multiply(b);
+//    }
+//    return this->simple_multiply(b);
+    return this->multiply(b);
 }
 
