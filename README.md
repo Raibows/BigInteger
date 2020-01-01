@@ -5,11 +5,11 @@ Finished:
 2. [x] add +
 3. [x] sub -
 4. [x] multiply * (using Karatsuba Algorithm) 
+5. [x] div /
 
 Unfinished but planned:  
-1. [ ] div /
-2. [ ] mod %
-3. [ ] power
+1. [ ] mod %
+2. [ ] power
 
 ## License
 Under Apache-2.0 license.

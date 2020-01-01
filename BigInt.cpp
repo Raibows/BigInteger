@@ -46,7 +46,6 @@ void BigInt::set_number(string value, bool positive_sign) {
     this->real_length = i;
 }
 
-
 BigInt::BigInt(string value_and_sign) {
     bool positive;
     if (value_and_sign[0] == '-')
@@ -113,6 +112,13 @@ string BigInt::to_string() {
     return temp;
 }
 
+BigInt BigInt::multi_ten(int n) {
+    BigInt temp = *this;
+    temp.value.insert(temp.value.begin()+1, n, 0);
+    temp.get_real_length();
+    return temp;
+}
+
 void BigInt::operator=(BigInt b) {
     bool positive = b.sign == 0 ? true : false;
     string value = b.to_string();
@@ -123,11 +129,21 @@ void BigInt::operator=(BigInt b) {
     this->set_number(value, positive);
 }
 
-bool BigInt::operator==(BigInt b) {
+bool BigInt::operator==(BigInt& b) {
     return (this->to_string() == b.to_string());
 }
 
-bool BigInt::operator!=(BigInt b) {
+bool BigInt::operator==(BigInt&& b) {
+    return *this == b;
+    return (this->to_string() == b.to_string());
+}
+
+bool BigInt::operator!=(BigInt&& b) {
+    return *this != b;
+//    return !(this->to_string() == b.to_string());
+}
+
+bool BigInt::operator!=(BigInt& b) {
     return !(this->to_string() == b.to_string());
 }
 
@@ -151,7 +167,7 @@ bool BigInt::operator>=(BigInt b) {
     return !(*this < b);
 }
 
-bool BigInt::greater(BigInt b) {
+bool BigInt::greater(BigInt& b) {
     if (this->sign != b.sign){
         return this->sign == 0 ? true : false;
     }
@@ -173,12 +189,11 @@ bool BigInt::greater(BigInt b) {
 
 BigInt BigInt::absolute() {
     BigInt temp = *this;
-    bool sign = true;
-    temp.set_sign(sign);
+    temp.set_sign(true);
     return temp;
 }
 
-BigInt BigInt::add(BigInt b) {
+BigInt BigInt::add(BigInt& b) {
     BigInt temp(max(this->get_real_length(), b.get_real_length()), 1, true);
     vector<int>::iterator iter1 = this->value.begin() + 1;
     vector<int>::iterator iter2 = b.value.begin() + 1;
@@ -329,18 +344,6 @@ BigInt BigInt::sub_value(int start, int end) {
     return temp;
 }
 
-BigInt BigInt::get_zero() {
-    int i = 0;
-    this->get_real_length();
-    BigInt temp = *this;
-    temp.set_sign(true);
-    for (; i < temp.value.size(); ++i) {
-        temp.value[i] = 0;
-    }
-    return temp;
-}
-
-
 BigInt BigInt::simple_multiply(BigInt& b) {
     if (*this == 0 || b == 0) {
         return BigInt(0);
@@ -374,12 +377,12 @@ BigInt BigInt::simple_multiply(BigInt& b) {
     return ans;
 }
 
-BigInt BigInt::karatsuba(BigInt a, BigInt b) {
-    if (a.absolute() < 1000 || b.absolute() < 1000) {
-        return a.simple_multiply(b);
-    }
+BigInt BigInt::karatsuba(BigInt& a, BigInt& b) {
     int len_a = a.get_real_length();
     int len_b = b.get_real_length();
+    if (len_a < 1000 || len_b < 1000) {
+        return a.simple_multiply(b);
+    }
     int half = min(len_a, len_b) / 2;
 
     BigInt bb = a.sub_value(1, half);
@@ -387,17 +390,19 @@ BigInt BigInt::karatsuba(BigInt a, BigInt b) {
     BigInt dd = b.sub_value(1, half);
     BigInt cc = b.sub_value(half+1, -1);
 
+
     BigInt z2 = this->karatsuba(aa, cc);
     BigInt z0 = this->karatsuba(bb, dd);
-    BigInt z1 = this->karatsuba((aa+bb), (cc+dd));
+    aa = aa + bb;
+    cc = cc + dd;
+    BigInt z1 = this->karatsuba(aa, cc);
     z1 = z1 - z0 - z2;
 
-    z2.value.insert(z2.value.begin() + 1, 2 * half, 0);
-    z1.value.insert(z1.value.begin() + 1, half, 0);
+    z2.value.insert(z2.value.begin()+1, 2*half, 0);
+    z1.value.insert(z1.value.begin()+1, half, 0);
 
     return z2+z1+z0;;
 }
-
 
 BigInt BigInt::multiply(BigInt& b) {
     if (*this == 0 || b == 0) {
@@ -409,23 +414,83 @@ BigInt BigInt::multiply(BigInt& b) {
     return temp;
 }
 
-BigInt BigInt::operator+(BigInt b) {
+BigInt BigInt::div(BigInt &b) {
+    if (b == 0) {
+        throw runtime_error("ERROR zero, 0 could not be the divisor");
+    }
+    if (this->absolute() < b.absolute()) {
+        return BigInt(0);
+    }
+    if (*this == b) {
+        return BigInt(1);
+    }
+    int cost = this->get_real_length() - b.get_real_length();
+    BigInt j (0);
+    BigInt one(1);
+    BigInt ans(1);
+    BigInt divided = *this;
+    BigInt temp(1);
+    while (cost >= 0) {
+        j = 0;
+        while (divided >= j.multi_ten(cost)*b) {
+            j = j + one;
+        }
+        j = j - one;
+        temp = j.multi_ten(cost);
+        ans = ans + temp;
+        divided = divided - b*temp;
+        cost -= 1;
+    }
+    ans = ans - one;
+    ans.set_sign(this->get_positive_sign()==b.get_positive_sign() ? true : false);
+    return ans;
+}
+
+BigInt BigInt::operator+(BigInt& b) {
     return this->add(b);
 }
 
-BigInt BigInt::operator-(BigInt b) {
+BigInt BigInt::operator+(BigInt&& b) {
+    return this->add(b);
+}
+
+
+BigInt BigInt::operator-(BigInt& b) {
+    BigInt temp = b;
+    temp.set_sign(!b.get_positive_sign());
+    return this->add(temp);
+}
+
+BigInt BigInt::operator-(BigInt&& b) {
     BigInt temp = b;
     temp.set_sign(!b.get_positive_sign());
     return this->add(temp);
 }
 
 
-
 BigInt BigInt::operator*(BigInt& b) {
+//    return this->simple_multiply(b);
     return this->multiply(b);
 }
 
-std::ostream &operator <<(std::ostream& os, BigInt& x) {
+BigInt BigInt::operator*(BigInt&& b) {
+//    return this->simple_multiply(b);
+    return this->multiply(b);
+}
+
+
+BigInt BigInt::operator/(BigInt &b) {
+    return this->div(b);
+}
+
+std::ostream &operator<<(std::ostream& os, BigInt& x) {
     os << x.to_string();
     return os;
 }
+
+std::ostream &operator<<(std::ostream& os, BigInt&& x) {
+    os << x.to_string();
+    return os;
+}
+
+

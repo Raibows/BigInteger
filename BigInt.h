@@ -19,18 +19,20 @@ class BigInt {
      */
 
     friend std::ostream &operator<< (std::ostream& os, BigInt& x);
+    friend std::ostream &operator<< (std::ostream& os, BigInt&& x);
 private:
     vector<int> value;
     int real_length;
     int sign;
     void set_number(string value, bool positive_sign);
-    bool greater(BigInt b);
-    BigInt add (BigInt b);
+    bool greater(BigInt& b);
+    BigInt add (BigInt& b);
     BigInt sub_value(int start, int end);
-    BigInt karatsuba(BigInt a, BigInt b);
+    BigInt karatsuba(BigInt& a, BigInt& b);
     BigInt simple_multiply(BigInt& b);
     BigInt multiply (BigInt& b);
-    BigInt get_zero();
+    BigInt div(BigInt& b); // this / b
+    BigInt multi_ten(int n);
 public:
     BigInt(string value_and_sign);
     BigInt(long long int value);
@@ -41,16 +43,21 @@ public:
     bool get_positive_sign();
     int get_real_length();
     void operator = (BigInt b);
-    bool operator == (BigInt b);
-    bool operator != (BigInt b);
+    bool operator == (BigInt& b);
+    bool operator == (BigInt&& b);
+    bool operator != (BigInt&& b);
+    bool operator != (BigInt& b);
     bool operator > (BigInt b);
     bool operator >= (BigInt b);
     bool operator < (BigInt b);
     bool operator <= (BigInt b);
-    BigInt operator + (BigInt b);
-    BigInt operator - (BigInt b);
+    BigInt operator + (BigInt& b);
+    BigInt operator + (BigInt&& b);
+    BigInt operator - (BigInt& b);
+    BigInt operator - (BigInt&& b);
     BigInt operator * (BigInt& b);
-    BigInt operator / (BigInt b);
+    BigInt operator * (BigInt&& b);
+    BigInt operator / (BigInt& b);
 };
 
 #endif //TEST_BIGINT_H
