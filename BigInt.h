@@ -17,6 +17,8 @@ class BigInt {
      * real_length recorded the real length of the value, not included the sign bit
      * sign, 0 means positive number, 1 means negative number
      */
+
+    friend std::ostream &operator<< (std::ostream& os, BigInt& x);
 private:
     vector<int> value;
     int real_length;
@@ -26,8 +28,8 @@ private:
     BigInt add (BigInt b);
     BigInt sub_value(int start, int end);
     BigInt karatsuba(BigInt a, BigInt b);
-    BigInt simple_multiply(BigInt b);
-    BigInt multiply (BigInt b);
+    BigInt simple_multiply(BigInt& b);
+    BigInt multiply (BigInt& b);
     BigInt get_zero();
 public:
     BigInt(string value_and_sign);
@@ -47,7 +49,7 @@ public:
     bool operator <= (BigInt b);
     BigInt operator + (BigInt b);
     BigInt operator - (BigInt b);
-    BigInt operator * (BigInt b);
+    BigInt operator * (BigInt& b);
     BigInt operator / (BigInt b);
 };
 

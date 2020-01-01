@@ -24,6 +24,11 @@ int main(int argc, char *argv[]) {
     ios::sync_with_stdio(false);
     string path = "./testBig.csv";
     ifstream inFile(path, ios::in);
+    if (!inFile)
+    {
+        cout << "打开文件失败！" << endl;
+        exit(1);
+    }
     string line;
     string single;
     vector<data> testdata(num);
@@ -36,7 +41,7 @@ int main(int argc, char *argv[]) {
         }
         testdata[i++].setdata(temp[0], temp[1], temp[2]);
     }
-
+    inFile.close();
     i = 0;
     clock_t t1 = clock();
 

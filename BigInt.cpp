@@ -14,15 +14,17 @@ int BigInt::get_real_length() {
     /*
      * not include the sign bit
      */
-    vector<int>::iterator iter = this->value.end() - 1;
+    int i = this->value.size() - 1;
+    int j = 0;
     this->real_length = 0;
-    while (*iter == 0 && iter != this->value.begin() + 1) {
-        this->value.erase(iter);
-        --iter;
+    while (this->value[i] == 0 && i > 1) {
+        --i;
+        ++j;
     }
-    while (iter != this->value.begin()) {
+    this->value.erase(this->value.end() - j, this->value.end());
+    while (i > 0) {
         ++this->real_length;
-        --iter;
+        --i;
     }
     return this->real_length;
 }
@@ -37,7 +39,7 @@ void BigInt::set_number(string value, bool positive_sign) {
     this->sign = positive_sign ? 0 : 1;
     this->value[0] = sign;
     int i = 0;
-	int j = value.size() - 1;
+    int j = value.size() - 1;
     for (; j >= 0; --j) {
         this->value[++i] = (value[j] - '0');
     }
@@ -57,18 +59,18 @@ BigInt::BigInt(string value_and_sign) {
     } else {
         positive = true;
     }
-	int i = 0;
-	while (i < value_and_sign.size() - 1)
-	{
-		if (value_and_sign[i] != '0') {
-			break;
-		}
-		++i;
-	}
-	value_and_sign = value_and_sign.substr(i);
-	if (value_and_sign == "0") {
-		positive = true;
-	}
+    int i = 0;
+    while (i < value_and_sign.size() - 1)
+    {
+        if (value_and_sign[i] != '0') {
+            break;
+        }
+        ++i;
+    }
+    value_and_sign = value_and_sign.substr(i);
+    if (value_and_sign == "0") {
+        positive = true;
+    }
 //    printf("structor %s \n", value_and_sign.c_str());
     this->set_number(value_and_sign, positive);
 }
@@ -104,12 +106,9 @@ string BigInt::to_string() {
     if (this->sign == 1) {
         temp.push_back('-');
     }
-    vector<int>::iterator iter = this->value.end() - 1;
-    while(*iter == 0 && iter != this->value.begin() + 1) {
-        --iter;
-    }
-    for (; iter > this->value.begin(); --iter) {
-        temp.push_back(('0' + *iter));
+    this->get_real_length();
+    for (int i = this->value.size() - 1; i > 0; --i) {
+        temp.push_back('0' + this->value[i]);
     }
     return temp;
 }
@@ -315,18 +314,18 @@ BigInt BigInt::sub_value(int start, int end) {
     if (end == -1) {
         end = real_length;
     }
-	if (start > real_length || start < 1 || end < start) {
-	    throw runtime_error("ERROR sub_value start, end is wrong!");
-	}
+    if (start > real_length || start < 1 || end < start) {
+        throw runtime_error("ERROR sub_value start, end is wrong!");
+    }
     BigInt temp(end-start+1, 1, this->get_positive_sign());
-	int i = 1;
-	while (start <= end) {
-	    temp.value[i] = this->value[start];
-	    ++start;
-	    ++i;
-	}
-	temp.set_sign(true);
-	temp.get_real_length();
+    int i = 1;
+    while (start <= end) {
+        temp.value[i] = this->value[start];
+        ++start;
+        ++i;
+    }
+    temp.set_sign(true);
+    temp.get_real_length();
     return temp;
 }
 
@@ -342,7 +341,7 @@ BigInt BigInt::get_zero() {
 }
 
 
-BigInt BigInt::simple_multiply(BigInt b) {
+BigInt BigInt::simple_multiply(BigInt& b) {
     if (*this == 0 || b == 0) {
         return BigInt(0);
     }
@@ -376,7 +375,7 @@ BigInt BigInt::simple_multiply(BigInt b) {
 }
 
 BigInt BigInt::karatsuba(BigInt a, BigInt b) {
-    if (a.absolute() < 10 || b.absolute() < 10) {
+    if (a.absolute() < 1000 || b.absolute() < 1000) {
         return a.simple_multiply(b);
     }
     int len_a = a.get_real_length();
@@ -392,18 +391,18 @@ BigInt BigInt::karatsuba(BigInt a, BigInt b) {
     BigInt z0 = this->karatsuba(bb, dd);
     BigInt z1 = this->karatsuba((aa+bb), (cc+dd));
     z1 = z1 - z0 - z2;
-    for (int i=0; i < 2*half; ++i) {
-        z2.value.insert(z2.value.begin()+1, 0);
-    }
-    for (int i=0; i < half; ++i) {
-        z1.value.insert(z1.value.begin()+1, 0);
-    }
+
+    z2.value.insert(z2.value.begin() + 1, 2 * half, 0);
+    z1.value.insert(z1.value.begin() + 1, half, 0);
 
     return z2+z1+z0;;
 }
 
 
-BigInt BigInt::multiply(BigInt b) {
+BigInt BigInt::multiply(BigInt& b) {
+    if (*this == 0 || b == 0) {
+        return BigInt(0);
+    }
     BigInt temp = this->karatsuba(*this, b);
     temp.get_real_length();
     temp.set_sign(this->get_positive_sign() == b.get_positive_sign() ? true : false);
@@ -422,11 +421,11 @@ BigInt BigInt::operator-(BigInt b) {
 
 
 
-BigInt BigInt::operator*(BigInt b) {
-//    if (this->real_length > 4 && b.real_length > 4) {
-//        return this->multiply(b);
-//    }
-//    return this->simple_multiply(b);
+BigInt BigInt::operator*(BigInt& b) {
     return this->multiply(b);
 }
 
+std::ostream &operator <<(std::ostream& os, BigInt& x) {
+    os << x.to_string();
+    return os;
+}
