@@ -139,6 +139,22 @@ BigInt BigInt::absolute() {
     return temp;
 }
 
+BigInt BigInt::negative() {
+    BigInt temp = *this;
+    temp.set_sign(!this->get_positive_sign());
+    return temp;
+}
+
+BigInt BigInt::power(int power) {
+    BigInt temp = *this;
+    while (--power) {
+        temp *= *this;
+    }
+    return temp;
+}
+
+
+
 BigInt BigInt::add(BigInt& b) {
     BigInt temp(max(this->get_real_length(), b.get_real_length()), 1, true);
     vector<int>::iterator iter1 = this->value.begin() + 1;
@@ -353,22 +369,24 @@ BigInt BigInt::multiply(BigInt& b) {
     return temp;
 }
 
-BigInt BigInt::div(BigInt& b) {
+vector<BigInt> BigInt::div_and_mod(BigInt& b) {
     if (b == 0) {
         throw runtime_error("ERROR zero, 0 could not be the divisor");
     }
     if (this->absolute() < b.absolute()) {
-        return BigInt(0);
+        BigInt temp = *this;
+        return vector<BigInt>{BigInt(0), temp};
     }
     if (*this == b) {
-        return BigInt(1);
+        return vector<BigInt>{BigInt(1), BigInt(0)};
     }
     int cost = this->get_real_length();
-    if (cost < 20) {
+    if (cost < 20 && false) {
         string aa = this->to_string();
         string bb = b.to_string();
-        long long int ans = stoll(aa, nullptr, 10) / stoll(bb, nullptr, 10);
-        return BigInt(ans);
+        long long int aint = stoll(aa, nullptr, 10);
+        long long int bint = stoll(bb, nullptr, 10);
+        return vector<BigInt>{BigInt(aint / bint), BigInt(aint % bint)};
     }
     cost -= b.get_real_length();
     BigInt j(0);
@@ -390,8 +408,10 @@ BigInt BigInt::div(BigInt& b) {
     }
     ans = ans - one;
     ans.set_sign(this->get_positive_sign() == b.get_positive_sign() ? true : false);
-    return ans;
+    divided.set_sign(this->get_positive_sign());
+    return vector<BigInt>{ans, divided};
 }
+
 
 void BigInt::operator=(BigInt b) {
     bool positive = b.sign == 0 ? true : false;
@@ -402,42 +422,65 @@ void BigInt::operator=(BigInt b) {
     this->set_number(value, positive);
 }
 
+
 bool BigInt::operator==(BigInt& b) {
     return (this->to_string() == b.to_string());
 }
-
 bool BigInt::operator==(BigInt&& b) {
     return *this == b;
     return (this->to_string() == b.to_string());
 }
 
-bool BigInt::operator!=(BigInt&& b) {
-    return *this != b;
-    //    return !(this->to_string() == b.to_string());
-}
 
 bool BigInt::operator!=(BigInt& b) {
     return !(this->to_string() == b.to_string());
 }
+bool BigInt::operator!=(BigInt&& b) {
+    return !(this->to_string() == b.to_string());
+}
 
-bool BigInt::operator>(BigInt b) {
+
+bool BigInt::operator>=(BigInt& b) {
+    return !(*this < b);
+}
+
+bool BigInt::operator>=(BigInt&& b) {
+    return !(*this < b);
+}
+
+
+bool BigInt::operator>(BigInt& b) {
     return this->greater(b);
 }
 
-bool BigInt::operator<=(BigInt b) {
+bool BigInt::operator>(BigInt&& b) {
+    return this->greater(b);
+}
+
+
+bool BigInt::operator<=(BigInt& b) {
     return !(*this > b);
 }
 
-bool BigInt::operator<(BigInt b) {
+bool BigInt::operator<=(BigInt&& b) {
+    return !(*this > b);
+}
+
+
+bool BigInt::operator<(BigInt& b) {
     if (this->to_string() == b.to_string()) {
         return false;
     }
     return !this->greater(b);
 }
 
-bool BigInt::operator>=(BigInt b) {
-    return !(*this < b);
+bool BigInt::operator<(BigInt&& b) {
+    if (this->to_string() == b.to_string()) {
+        return false;
+    }
+    return !this->greater(b);
 }
+
 
 BigInt BigInt::operator+(BigInt& b) {
     return this->add(b);
@@ -470,7 +513,91 @@ BigInt BigInt::operator*(BigInt&& b) {
 }
 
 BigInt BigInt::operator/(BigInt& b) {
-    return this->div(b);
+    return this->div_and_mod(b)[0];
+}
+
+BigInt BigInt::operator/(BigInt&& b) {
+    return this->div_and_mod(b)[0];
+}
+
+BigInt BigInt::operator%(BigInt& b) {
+    return this->div_and_mod(b)[1];
+}
+
+BigInt BigInt::operator%(BigInt&& b) {
+    return this->div_and_mod(b)[1];
+}
+
+BigInt& BigInt::operator++() {
+    *this = *this + 1;
+    return *this;
+}
+
+BigInt BigInt::operator++(int) {
+    BigInt before = *this;
+    *this = *this + 1;
+    return before;
+}
+
+BigInt& BigInt::operator--() {
+    *this = *this - 1;
+    return *this;
+}
+
+BigInt BigInt::operator--(int) {
+    BigInt before = *this;
+    *this = *this - 1;
+    return before;
+}
+
+BigInt& BigInt::operator+=(BigInt& b) {
+    *this = *this + b;
+    return *this;
+}
+
+BigInt& BigInt::operator+=(BigInt&& b) {
+    *this = *this + b;
+    return *this;
+}
+
+BigInt& BigInt::operator-=(BigInt& b) {
+    *this = *this - b;
+    return *this;
+}
+
+BigInt& BigInt::operator-=(BigInt&& b) {
+    *this = *this - b;
+    return *this;
+}
+
+BigInt& BigInt::operator*=(BigInt& b) {
+    *this = *this * b;
+    return *this;
+}
+
+BigInt& BigInt::operator*=(BigInt&& b) {
+    *this = *this * b;
+    return *this;
+}
+
+BigInt& BigInt::operator/=(BigInt& b) {
+    *this = *this / b;
+    return *this;
+}
+
+BigInt& BigInt::operator/=(BigInt&& b) {
+    *this = *this / b;
+    return *this;
+}
+
+BigInt& BigInt::operator%=(BigInt& b) {
+    *this = *this % b;
+    return *this;
+}
+
+BigInt& BigInt::operator%=(BigInt&& b) {
+    *this = *this % b;
+    return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, BigInt& x) {

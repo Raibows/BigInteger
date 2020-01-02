@@ -20,9 +20,29 @@ struct mydata {
 
 int main(int argc, char* argv[]) {
 
-    BigInt x1("-22222211111161112");
-    BigInt x2("-1111456781111");
-    cout << x1 / x2 << endl;
+    BigInt x1("14524245501");
+    BigInt x2("-11");
+    long long int x3 = stoll(x1.to_string());
+    long long int x4 = stoll(x2.to_string());
+    x1++;
+    x3++;
+    cout << x1++ << endl;
+    cout << x3++ << endl;
+    x2 += 4;
+    x4 += 4;
+    x2 *= 15;
+    x4 *= 15;
+    cout << x2 << endl;
+    cout << x4 << endl;
+    x1 /= x2;
+    x3 /= x4;
+    --x1;
+    --x3;
+    cout << x1 % x2 << endl;
+    cout << x3 % x4 << endl;
+
+    cout << x2.power(3) << endl;
+    printf("%f\n", pow(x4, 3));
 
 
     int num = 1000;
@@ -54,8 +74,7 @@ int main(int argc, char* argv[]) {
         }
     }
     inFile.close();
-    printf("共有%d条大整数乘法数据，其中小于%d长度的数据有%d条，大于%d长度的数据有%d条\n", num, limit, count, limit,
-           num - count);
+    printf("共有%d条大整数乘法数据，其中小于%d长度的数据有%d条，大于%d长度的数据有%d条\n", num, limit, count, limit, num - count);
     i = 0;
     while (loop--) {
         clock_t t1 = clock();
@@ -63,15 +82,16 @@ int main(int argc, char* argv[]) {
             BigInt x(testdata[i].x);
             BigInt y(testdata[i].y);
             BigInt ans = x * y;
-            //            ans = ans / x;
-            if (ans != BigInt(testdata[i].ans)) {
+            
+            if (ans != testdata[i].ans) {
                 cout << i << "error" << endl;
                 break;
             }
-            //            if (ans != y) {
-            //                cout << i << "wrong" << endl;
-            //                break;
-            //            }
+            /*ans = ans / x;
+            if (ans != y) {
+                cout << i << "wrong" << endl;
+                break;
+            }*/
             cout << "yes" << i << endl;
         }
         timer.push_back((clock() - t1) * 1.0 / CLOCKS_PER_SEC);
