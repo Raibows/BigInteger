@@ -8,6 +8,10 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
+#include <algorithm>
+#include <math.h>
+#include <iterator>
 using namespace std;
 
 
