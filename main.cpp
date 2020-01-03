@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     int limit = 300;
     int loop = 1;
     cin >> loop;
-    vector<float> timer(10);
+    vector<float> timer;
     ios::sync_with_stdio(false);
     string path = "./testBig.csv";
     ifstream inFile(path, ios::in);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 
     cout << loop << "benchmark is" << endl;
     cout << "averge:" << averge << endl;
-    cout << "min   :" << timer[0] << endl;
+    cout << "min   :" << *(timer.begin()) << endl;
     cout << "max   :" << *(timer.end() - 1) << endl;
     return 0;
 }

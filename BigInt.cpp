@@ -153,8 +153,6 @@ BigInt BigInt::power(int power) {
     return temp;
 }
 
-
-
 BigInt BigInt::add(BigInt& b) {
     BigInt temp(max(this->get_real_length(), b.get_real_length()), 1, true);
     vector<int>::iterator iter1 = this->value.begin() + 1;
@@ -397,7 +395,7 @@ vector<BigInt> BigInt::div_and_mod(BigInt& b) {
     BigInt temp(1);
     while (cost >= 0) {
         j = 0;
-        while (divided >= j.multi_ten(cost) * divisor) {
+        while (divided >= (j * divisor).multi_ten(cost)) {
             j = j + one;
         }
         j = j - one;
@@ -412,7 +410,6 @@ vector<BigInt> BigInt::div_and_mod(BigInt& b) {
     return vector<BigInt>{ans, divided};
 }
 
-
 void BigInt::operator=(BigInt b) {
     bool positive = b.sign == 0 ? true : false;
     string value = b.to_string();
@@ -422,7 +419,6 @@ void BigInt::operator=(BigInt b) {
     this->set_number(value, positive);
 }
 
-
 bool BigInt::operator==(BigInt& b) {
     return (this->to_string() == b.to_string());
 }
@@ -431,7 +427,6 @@ bool BigInt::operator==(BigInt&& b) {
     return (this->to_string() == b.to_string());
 }
 
-
 bool BigInt::operator!=(BigInt& b) {
     return !(this->to_string() == b.to_string());
 }
@@ -439,33 +434,26 @@ bool BigInt::operator!=(BigInt&& b) {
     return !(this->to_string() == b.to_string());
 }
 
-
 bool BigInt::operator>=(BigInt& b) {
     return !(*this < b);
 }
-
 bool BigInt::operator>=(BigInt&& b) {
     return !(*this < b);
 }
 
-
 bool BigInt::operator>(BigInt& b) {
     return this->greater(b);
 }
-
 bool BigInt::operator>(BigInt&& b) {
     return this->greater(b);
 }
 
-
 bool BigInt::operator<=(BigInt& b) {
     return !(*this > b);
 }
-
 bool BigInt::operator<=(BigInt&& b) {
     return !(*this > b);
 }
-
 
 bool BigInt::operator<(BigInt& b) {
     if (this->to_string() == b.to_string()) {
@@ -473,14 +461,12 @@ bool BigInt::operator<(BigInt& b) {
     }
     return !this->greater(b);
 }
-
 bool BigInt::operator<(BigInt&& b) {
     if (this->to_string() == b.to_string()) {
         return false;
     }
     return !this->greater(b);
 }
-
 
 BigInt BigInt::operator+(BigInt& b) {
     return this->add(b);
