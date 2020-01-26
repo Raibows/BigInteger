@@ -27,10 +27,10 @@ Support and Finished:
 1. [x] comparison ==, !=, <, <=, >, >=
 2. [x] add +, ++, +=
 3. [x] sub -, --, -=
-4. [x] multiply *, *= (using Karatsuba Algorithm) 
+4. [x] multiply *, *= (Karatsuba Algorithm) 
 5. [x] divide /, /=
 6. [x] mod %, %=
-7. [x] power
+7. [x] power (QuickPower Algorithm)
 
 Unfinished but planned:  
 1. support BigDecimal
