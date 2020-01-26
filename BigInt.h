@@ -39,6 +39,7 @@ class BigInt {
     vector<BigInt> div_and_mod(BigInt& b);
     BigInt multi_ten(int n);
     void set_sign(bool positive_sign);
+    BigInt quick_pow(int power);
 
   public:
     BigInt(string value_and_sign);

@@ -19,11 +19,13 @@ struct mydata {
 };
 
 int main(int argc, char* argv[]) {
-
+    ios::sync_with_stdio(false);
     BigInt x1("14524245501");
-    BigInt x2("-11");
-    long long int x3 = stoll(x1.to_string());
-    long long int x4 = stoll(x2.to_string());
+    BigInt x2("-14524245501");
+    BigInt x33 = x1 + x2;
+    cout << x33.get_positive_sign() << endl;
+    long long x3 = stoll(x1.to_string());
+    long long x4 = stoll(x2.to_string());
     x1++;
     x3++;
     cout << x1++ << endl;
@@ -40,9 +42,12 @@ int main(int argc, char* argv[]) {
     --x3;
     cout << x1 % x2 << endl;
     cout << x3 % x4 << endl;
-
+    cout << x2 << endl;
+    cout << x4 << endl;
+    
+    cout << BigInt(-123).power(9) << endl;
     cout << x2.power(3) << endl;
-    printf("%f\n", pow(x4, 3));
+    printf("%I64d\n", pow(x4, 3));
 
 
     int num = 1000;
@@ -51,7 +56,6 @@ int main(int argc, char* argv[]) {
     int loop = 1;
     cin >> loop;
     vector<float> timer;
-    ios::sync_with_stdio(false);
     string path = "./testBig.csv";
     ifstream inFile(path, ios::in);
     if (!inFile) {
@@ -75,8 +79,8 @@ int main(int argc, char* argv[]) {
     }
     inFile.close();
     printf("共有%d条大整数乘法数据，其中小于%d长度的数据有%d条，大于%d长度的数据有%d条\n", num, limit, count, limit, num - count);
-    i = 0;
     while (loop--) {
+        i = 0;
         clock_t t1 = clock();
         for (; i < num; ++i) {
             BigInt x(testdata[i].x);
@@ -102,8 +106,12 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i < loop - 1; ++i) {
         averge += (timer[i] / (timer.size() - 2));
     }
+    if (averge == 0)
+    {
+        averge = timer[0];
+    }
 
-    cout << loop << "benchmark is" << endl;
+    cout << "benchmark is" << endl;
     cout << "averge:" << averge << endl;
     cout << "min   :" << *(timer.begin()) << endl;
     cout << "max   :" << *(timer.end() - 1) << endl;

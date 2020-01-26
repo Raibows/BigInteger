@@ -146,18 +146,55 @@ BigInt BigInt::negative() {
 }
 
 BigInt BigInt::power(int power) {
-    BigInt temp = *this;
-    while (--power) {
-        temp *= *this;
+    if (power < 0)
+    {
+        throw runtime_error("ERROR, power function only support >= 0");
     }
+    if (power == 0)
+    {
+        return BigInt(1);
+    }
+    
+    BigInt temp(0);
+    if (power > 5 || this->get_real_length() >= 16)
+    {
+        temp = this->quick_pow(power);
+    }
+    else
+    {
+        temp = *this;
+        while (--power)
+        {
+            temp *= *this;
+        }
+    }
+    
     return temp;
 }
 
+BigInt BigInt::quick_pow(int power) {
+    if (power == 0)
+    {
+        return BigInt(1);
+    }
+    BigInt res = quick_pow(power/2);
+    if (power%2)
+    {
+        return res*res*(*this);
+    }
+    else
+    {
+        return res*res;
+    }
+}
+
+
+
 BigInt BigInt::add(BigInt& b) {
     BigInt temp(max(this->get_real_length(), b.get_real_length()), 1, true);
-    vector<int>::iterator iter1 = this->value.begin() + 1;
-    vector<int>::iterator iter2 = b.value.begin() + 1;
-    vector<int>::iterator iter = temp.value.begin() + 1;
+    auto iter1 = this->value.begin() + 1;
+    auto iter2 = b.value.begin() + 1;
+    auto iter = temp.value.begin() + 1;
     int value1 = 0;
     int value2 = 0;
     int carry = 0;
